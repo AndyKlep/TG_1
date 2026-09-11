@@ -6,6 +6,10 @@ import random
 import aiohttp
 from weather_api import get_current_weather
 from config import TOKEN
+from translator_api import (
+    TranslationServiceError,
+    translate_ru_to_en,
+)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -42,6 +46,7 @@ async def photo(message: Message):
 @dp.message(Command('video'))
 async def video(message: Message):
     video = FSInputFile('./media/video.mp4')
+    await bot.send_chat_action(message.chat.id, 'upload_video')
     await bot.send_video(message.chat.id, video)
 
 @dp.message(Command('audio'))
@@ -94,6 +99,46 @@ async def weather_handler(message: Message, command: CommandObject):
     )
 
     await message.answer(text)
+
+@dp.message(Command('voice'))
+async def voice(message: Message):
+    voice = FSInputFile("./media/sample.ogg")
+    await message.answer_voice(voice)
+
+@dp.message(Command("trnsl"))
+async def translate_handler(
+    message: Message,
+    command: CommandObject,
+):
+    text_to_translate = command.args
+
+    if not text_to_translate:
+        await message.answer(
+            "Напишите текст после команды.\n\n"
+            "Пример:\n"
+            "<code>/trnsl Привет! Как дела?</code>"
+        )
+        return
+
+    try:
+        translated_text = await asyncio.to_thread(
+            translate_ru_to_en,
+            text_to_translate,
+        )
+
+    except TranslationServiceError as error:
+        print(f"Ошибка перевода: {error}")
+
+        await message.answer(
+            "Не удалось перевести текст. "
+            "Попробуйте ещё раз позже."
+        )
+        return
+
+    await message.answer(
+        f"🇬🇧Перевод:\n"
+        f"{translated_text}"
+    )
 
 @dp.message()
 async def start(message: Message):
