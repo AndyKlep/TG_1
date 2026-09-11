@@ -22,7 +22,7 @@ class Form(StatesGroup):
     city = State()
 
 def init_db():
-    conn = sqlite3.connect('user_data.db')
+    conn = sqlite3.connect('db/user_data.db')
     cur = conn.cursor()
     cur.execute('''
 	CREATE TABLE IF NOT EXISTS users (
@@ -55,7 +55,7 @@ async def age(message: Message, state: FSMContext):
 async def city(message: Message, state:FSMContext):
     await state.update_data(city=message.text)
     user_data = await state.get_data()
-    conn = sqlite3.connect('user_data.db')
+    conn = sqlite3.connect('db/user_data.db')
     cur = conn.cursor()
     cur.execute('''
        INSERT INTO users (name, age, city) VALUES (?, ?, ?)''',
@@ -66,7 +66,7 @@ async def city(message: Message, state:FSMContext):
 @dp.message(Command("weather"))
 async def weather_handler(message: Message, command: CommandObject):
     name = command.args
-    conn = sqlite3.connect('user_data.db')
+    conn = sqlite3.connect('db/user_data.db')
     cur = conn.cursor()
     cur.execute('''
            SELECT city FROM users WHERE name = ?''', (name,))

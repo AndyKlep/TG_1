@@ -19,7 +19,7 @@ class Form(StatesGroup):
     grade = State()
 
 def init_db():
-    conn = sqlite3.connect('school_data.db')
+    conn = sqlite3.connect('db/school_data.db')
     cur = conn.cursor()
     cur.execute('''
 	CREATE TABLE IF NOT EXISTS students (
@@ -48,7 +48,7 @@ async def process_name(message: Message, state: FSMContext):
         await message.answer("Имя не должно быть пустым. Введите имя ещё раз.")
         return
 
-    conn = sqlite3.connect("school_data.db")
+    conn = sqlite3.connect("db/school_data.db")
     cur = conn.cursor()
 
     cur.execute(
@@ -80,7 +80,7 @@ async def age(message: Message, state: FSMContext):
 async def city(message: Message, state:FSMContext):
     await state.update_data(grade=message.text)
     user_data = await state.get_data()
-    conn = sqlite3.connect('school_data.db')
+    conn = sqlite3.connect('db/school_data.db')
     cur = conn.cursor()
     cur.execute('''
        INSERT INTO students (name, age, grade) VALUES (?, ?, ?)''',
