@@ -71,6 +71,8 @@ async def weather_handler(message: Message, command: CommandObject):
     cur.execute('''
            SELECT city FROM users WHERE name = ?''', (name,))
     result = cur.fetchone()
+    conn.commit()
+    conn.close()
 
     if result is None:
         await message.answer(
