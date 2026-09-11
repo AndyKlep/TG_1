@@ -14,11 +14,9 @@ dp = Dispatcher()
 async def main():
     await dp.start_polling(bot)
 
-
-
 @dp.message(CommandStart())
 async def start(message: Message):
-    await message.answer("Приветики, я бот!")
+    await message.answer(f'Приветики, {message.from_user.full_name}')
 
 @dp.message(Command('help'))
 async def help(message: Message):
@@ -33,12 +31,22 @@ async def react_photo(message: Message):
     list = ['Ого, какая фотка!', 'Непонятно, что это такое', 'Не отправляй мне такое больше']
     rand_answ = random.choice(list)
     await message.answer(rand_answ)
+    await bot.download(message.photo[-1], destination=f'tmp/{message.photo[-1].file_id}.jpg')
 
 @dp.message(Command('photo'))
 async def photo(message: Message):
     list = ['./media/1.jpg','./media/2.jpg','./media/3.jpg',]
     rand_photo = FSInputFile(random.choice(list))
     await message.answer_photo(photo=rand_photo, caption='Это супер крутая картинка')
+
+@dp.message(Command('video'))
+async def video(message: Message):
+    video = FSInputFile('./media/video.mp4')
+    await bot.send_video(message.chat.id, video)
+
+@dp.message(Command('audio'))
+async def audio(message: Message):
+    await message.answer("Этот бот умеет выполнять команды:\\n/start\\n/help\\n/minitraining")
 
 @dp.message(Command("weather"))
 async def weather_handler(message: Message, command: CommandObject):
